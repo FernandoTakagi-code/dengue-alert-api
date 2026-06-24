@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Municipio {
+  geocodigo  Int      @id
+  nome       String
+  populacao  Int
+
+  registros  RegistroSemanal[]
+
+  @@map("municipios")
+}
+
+model RegistroSemanal {
+  id                   Int      @id @default(autoincrement())
+  municipioGeocodigo   Int      @map("municipio_geocodigo")
+  semanaEpidemiologica Int      @map("semana_epidemiologica")
+  dataInicioSemana     DateTime @map("data_inicio_semana")
+  casos                Int
+  nivelAlerta          Int      @map("nivel_alerta")
+  rt                   Float
+  tempMedia            Float    @map("temp_media")
+
+  municipio            Municipio @relation(fields: [municipioGeocodigo], references: [geocodigo])
+
+  @@map("registros_semanais")
+  @@unique([municipioGeocodigo, semanaEpidemiologica])
+}
