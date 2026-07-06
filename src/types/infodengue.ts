@@ -12,6 +12,7 @@ export interface InfoDengueRecord {
   // Localização
   municipio_geocodigo: number;
   municipio_nome: string;
+  pop: number;
 
   // Indicadores de risco - os mais importantes pro nosso projeto
   nivel: 1 | 2 | 3 | 4; // 1=verde, 2=amarelo, 3=laranja, 4=vermelho
