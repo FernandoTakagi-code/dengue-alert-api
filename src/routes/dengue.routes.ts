@@ -2,6 +2,7 @@ import { Router } from "express";
 import { dengueQuerySchema } from "../types/dengue-query.schema.js";
 import { fetchInfoDengueData } from "../services/infodengue.service.js";
 import { saveInfoDengueRecords } from "../services/dengue-storage.service.js";
+import { analisarTendencia } from "../services/alert.service.js";
 
 export const dengueRouter = Router();
 
@@ -20,14 +21,12 @@ dengueRouter.get("/mogi-das-cruzes", async (req, res) => {
   const { start, end } = parseResult.data;
 
   try {
-    // 1. Busca dados da API externa
     const data = await fetchInfoDengueData({
       geocode: MOGI_DAS_CRUZES_GEOCODE,
       startDate: start,
       endDate: end,
     });
 
-    // 2. Persiste no banco
     const { salvos } = await saveInfoDengueRecords(data);
 
     res.json({
@@ -40,6 +39,17 @@ dengueRouter.get("/mogi-das-cruzes", async (req, res) => {
   } catch (error) {
     res.status(502).json({
       error: "Erro ao buscar ou salvar dados",
+    });
+  }
+});
+
+dengueRouter.get("/mogi-das-cruzes/analise", async (req, res) => {
+  try {
+    const resultado = await analisarTendencia(MOGI_DAS_CRUZES_GEOCODE);
+    res.json(resultado);
+  } catch (error) {
+    res.status(500).json({
+      error: "Erro ao analisar tendência",
     });
   }
 });
