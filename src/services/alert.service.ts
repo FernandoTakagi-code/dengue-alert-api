@@ -1,6 +1,6 @@
 import { prisma } from "../config/prisma.js";
 
-interface AlertResult {
+export interface AlertResult {
   deveAlertar: boolean;
   nivel: "critico" | "atencao" | "normal";
   mensagem: string;

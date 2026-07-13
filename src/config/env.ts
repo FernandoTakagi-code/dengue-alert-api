@@ -14,4 +14,7 @@ function getRequiredEnv(key: string): string {
 export const env = {
   port: process.env.PORT ?? "3000",
   mosqlimateApiKey: getRequiredEnv("MOSQLIMATE_API_KEY"),
+  emailUser: getRequiredEnv("EMAIL_USER"),
+  emailAppPassword: getRequiredEnv("EMAIL_APP_PASSWORD"),
+  emailDestinatario: getRequiredEnv("EMAIL_DESTINATARIO"),
 };
