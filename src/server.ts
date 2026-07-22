@@ -10,7 +10,7 @@ const app = express();
 const PORT = process.env.PORT ?? 3000; // usa a env var, ou 3000 como fallback
 
 // Rota de teste - "health check": serve pra confirmar que a API está no ar
-app.get("/health", (req, res) => {
+app.get("/health", (_req, res) => {
   res.json({ status: "ok", message: "API de alertas de dengue funcionando" });
 });
 

@@ -4,7 +4,8 @@ import { fetchInfoDengueData } from "../services/infodengue.service.js";
 import { saveInfoDengueRecords } from "../services/dengue-storage.service.js";
 import { analisarTendencia } from "../services/alert.service.js";
 import { enviarAlertaEmail } from "../services/email.service.js";
-
+import { historicoQuerySchema } from "../types/historico-query.schema.js";
+import { prisma } from "../config/prisma.js";
 
 export const dengueRouter = Router();
 
@@ -61,6 +62,44 @@ dengueRouter.get("/mogi-das-cruzes/analise", async (_req, res) => {
   } catch (error) {
     res.status(500).json({
       error: "Erro ao analisar tendência",
+    });
+  }
+});
+
+dengueRouter.get("/mogi-das-cruzes/historico", async (req, res) => {
+  const parseResult = historicoQuerySchema.safeParse(req.query);
+
+  if (!parseResult.success) {
+    res.status(400).json({
+      error: "Parâmetros inválidos",
+      details: parseResult.error.flatten().fieldErrors,
+    });
+    return;
+  }
+
+  const { start, end, nivel, casosMin } = parseResult.data;
+
+  try {
+    const registros = await prisma.registroSemanal.findMany({
+      where: {
+        ...(start && { dataInicioSemana: { gte: new Date(start) } }),
+        ...(end && { dataInicioSemana: { lte: new Date(end) } }),
+        ...(nivel && { nivelAlerta: nivel }),
+        ...(casosMin && { casos: { gte: casosMin } }),
+      },
+      orderBy: { semanaEpidemiologica: "desc" },
+      include: { municipio: true },
+    });
+
+    res.json({
+      municipio: "Mogi das Cruzes",
+      filtros: { start, end, nivel, casosMin },
+      totalRegistros: registros.length,
+      dados: registros,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: "Erro ao buscar histórico",
     });
   }
 });
